@@ -1,0 +1,28 @@
+simple_message_client & simple_message_server
+
+Verteilte Systeme - TCPIP Programmierübung
+
+Claudia Madzak - ic16b028 - claudia.madzak@technikum-wien.at
+Salko Nuhanovic - ic17b064 - salko.nuhanovic@technikum-wien.at
+2017/12/09
+---------------------------------------------------------------
+DESCRIPTION:
+  The server accepts incoming requests from the client-side, and forks for each of the client a 
+  child process where the business logic (message bulletin board) is executed.
+
+USAGE:
+   Server:   
+		./simple_message_server -p port [-h]
+		
+		-p port: the server port number
+		-h help: causes a usage message to be written to stdout.
+		wrong usage causes the usage message to be written to stdout as well
+		
+	Client:
+		./simple_message_client  -s server -p port -u user –i image -m message
+
+		-s server: hostname of the server
+		-p port: port number => range from 0 to 65535 (for 0 - 1024 root rights are needed)
+		-u user: user name 
+		-i image:  optionally an image can be sent with the message (URL)
+		-m message: a message that should be posted to the bulletin board
