@@ -9,6 +9,9 @@ Salko Nuhanovic - ic17b064 - salko.nuhanovic@technikum-wien.at
 DESCRIPTION:
   The server accepts incoming requests from the client-side, and forks for each of the client a 
   child process where the business logic (message bulletin board) is executed.
+  
+BUILD:
+  The project is build via the make command with the provided MAKEFILE
 
 USAGE:
    Server:   
@@ -17,6 +20,8 @@ USAGE:
 		-p port: the server port number
 		-h help: causes a usage message to be written to stdout.
 		wrong usage causes the usage message to be written to stdout as well
+    
+    Example: simple_message_server -p 5702
 		
 	Client:
 		./simple_message_client  -s server -p port -u user –i image -m message
@@ -26,3 +31,5 @@ USAGE:
 		-u user: user name 
 		-i image:  optionally an image can be sent with the message (URL)
 		-m message: a message that should be posted to the bulletin board
+    
+    Example: simple_message_client  -s locahost -p 5702 -u 'Mr. Miller'  -m 'This is my first board entry'
