@@ -52,14 +52,14 @@ static int handle_response(FILE *rfp);
 
 
 /**
- * @brief Prints the possible parameters of the application. and exits the process.
- 
+ * @brief Prints the possible parameters of the application and exits the process.
+
  * @param stream	file stream for output
  * @param programName		name of the programm
  * @param exitcode	exitcode will return to the operating system
  *
  */
-static void printUsage(FILE* stream, const char *programName, int exitcode) 
+static void printUsage(FILE* stream, const char *programName, int exitcode)
 {
 	fprintf(stream, "usage: %s options\n", programName);
 	fprintf(stream, "options:\n");
@@ -74,12 +74,12 @@ static void printUsage(FILE* stream, const char *programName, int exitcode)
 }
 
 /**
-* @brief Prints passed verbose messages of the programm.
+* @brief Prints passed verbose messages of the program.
 *
 * @param text	text to be printed
 *
 */
-static void print_verbose(char * text) 
+static void print_verbose(char * text)
 {
 	if(verbose)
 	{
@@ -96,7 +96,7 @@ static void print_verbose(char * text)
  * @param sa	struct sockaddr
  *
  */
-static void *get_in_addr(struct sockaddr *sa) 
+static void *get_in_addr(struct sockaddr *sa)
 {
 	if (sa->sa_family == AF_INET)
 	{
@@ -111,23 +111,23 @@ static void *get_in_addr(struct sockaddr *sa)
  * @param server	server name or ip
  * @param port		server port
  *
- * @return socket id - if successfull, otherwise -1
+ * @return socket id - if successful, otherwise -1
  *
  */
 static int get_connection(const char *server, const char *port)
 {
 	int sockfd = 0;
-	struct addrinfo hints, *servinfo, *p; 
-	int rv = 0; 
+	struct addrinfo hints, *servinfo, *p;
+	int rv = 0;
 	char s[INET6_ADDRSTRLEN] = "";
 	char msg[MAXDATASIZE] = "";
 
 	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_ADDRCONFIG; 
+	hints.ai_family = AF_UNSPEC; //ipv4 or ipv6
+	hints.ai_socktype = SOCK_STREAM; //provides TCP
+	hints.ai_flags = AI_ADDRCONFIG;
 
-	if ((rv = getaddrinfo(server, port, &hints, &servinfo)) != 0)  //Get Adress info of Server whih can be used for connect
+	if ((rv = getaddrinfo(server, port, &hints, &servinfo)) != 0)  //Get Adress info of Server which can be used for connect
 	{
 		fprintf(stderr, "simple_message_client: getaddrinfo: %s\n", gai_strerror(rv));
 		return -1;
@@ -143,7 +143,7 @@ static int get_connection(const char *server, const char *port)
 		}
 		print_verbose("Socket created");
 
-		if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) //cokect to server
+		if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) //connect to server
 		{
 			close(sockfd);
 			perror("can't connect to socket");
@@ -160,7 +160,7 @@ static int get_connection(const char *server, const char *port)
 		return -1;
 	}
 
-	inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),s, sizeof s); // Covert IP Adress to text form 
+	inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),s, sizeof s); //convert IPv4 and IPv6 addresses from binary to text form
 
 	sprintf(msg, "Connected to %s", s);
 	print_verbose(msg);
@@ -178,7 +178,7 @@ static int get_connection(const char *server, const char *port)
  * @param img		img_url string
  * @param message	message string
  *
- * @return 0 - if successfull, otherwise -1
+ * @return 0 - if successful, otherwise -1
  *
  */
 static int send_request(int sockfd, const char *user, const char *img, const char *message)
@@ -186,20 +186,20 @@ static int send_request(int sockfd, const char *user, const char *img, const cha
 	FILE *wfp = NULL;
 	int newsock = 0;
 
-	if ((user == NULL) || (message == NULL)) 
+	if ((user == NULL) || (message == NULL))
 	{
 		perror("invalid user or message");
 		return -1;
 	}
-	
-	if ((newsock = dup(sockfd)) == -1) //dup dupliziert den Filedeskriptor
+
+	if ((newsock = dup(sockfd)) == -1) //dup duplicates the Filedescriptor
 	{
 		perror("can't dup socket for request");
 		return -1;
 	}
 	print_verbose("socket duplicated");
 
-	wfp = fdopen(newsock, "w"); //wandelt filedeskriptor in einen File Pointer um
+	wfp = fdopen(newsock, "w"); //changes the Filedescriptor into a File Pointer
 	if (wfp == NULL)
 	{
 		perror("can't open write-stream");
@@ -207,11 +207,11 @@ static int send_request(int sockfd, const char *user, const char *img, const cha
 	}
 	print_verbose("socket opened as file for writing");
 
-	if (img == NULL) 
+	if (img == NULL)
 	{
 		if (fprintf(wfp, "user=%s\n%s\n", user, message) == -1)
 		{
-			if(fclose(wfp) == -1){ 
+			if(fclose(wfp) == -1){
 				perror("can't close write-stream");
 				return -1;
 				}
@@ -224,7 +224,7 @@ static int send_request(int sockfd, const char *user, const char *img, const cha
 	{
 		if (fprintf(wfp, "user=%s\nimg=%s\n%s\n", user, img, message) == -1)
 		{
-			if(fclose(wfp) == -1){ 
+			if(fclose(wfp) == -1){
 				perror("can't close write-stream");
 				return -1;
 				}
@@ -270,16 +270,16 @@ static int get_response(int sockfd)
 	int end = 0;
 	char msg[MAXDATASIZE] = "";
 
-	
-	if ((newsock = dup(sockfd)) == -1) //dup dupliziert Filedeskriptor, und schließt nicht stdin
+
+	if ((newsock = dup(sockfd)) == -1)
 	{
 		perror("can't dup socket for reply");
 		return -1;
 	}
 	print_verbose("socket duplicated");
 
-	rfp = fdopen(newsock, "r"); //wandelt Filedeskriptor in Filepointer um
-	if (rfp == NULL) 
+	rfp = fdopen(newsock, "r");
+	if (rfp == NULL)
 	{
 		perror("can't open read-stream");
 		return -1;
@@ -291,7 +291,7 @@ static int get_response(int sockfd)
 	if (rfp == NULL)
 	{
 		perror("can't read from socket");
-		if(fclose(rfp) == -1) { 
+		if(fclose(rfp) == -1) {
 			perror("can't close rfp");
 			return -1;
 		}
@@ -311,14 +311,14 @@ static int get_response(int sockfd)
 		end = handle_response(rfp);
 		if (end < 0)
 		{
-			if(fclose(rfp) == -1) { 
+			if(fclose(rfp) == -1) {
 				perror("can't close rfp");
 				return -1;
 			}
 			return -1;
 		}
 	}
-	while (end != 1); 
+	while (end != 1);
 
 	if (fclose(rfp) == -1)
 	{
@@ -456,8 +456,8 @@ int main (int argc, const char * argv[])
 	const char *user = NULL;
 	const char *message = NULL;
 	const char *img = NULL;
-	
-	smc_parsecommandline(argc, argv, printUsage, &server, &port, &user, &message, &img, &verbose); 
+
+	smc_parsecommandline(argc, argv, printUsage, &server, &port, &user, &message, &img, &verbose);
 
 	print_verbose("parsed parameter");
 
